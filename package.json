@@ -1,0 +1,30 @@
+{
+    "name": "windvane",
+    "version": "0.0.1",
+    "description": "A windvane for the BeagleBone Green/Black",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/psiphi75/bbg-windvane"
+    },
+    "keywords": [
+        "windvane",
+        "BeagleBone",
+        "compass",
+        "anemometer"
+    ],
+    "author": "Simon M. Werner",
+    "license": "APSL-2.0",
+    "bugs": {
+        "url": "https://github.com/psiphi75/bbg-windvane/issues"
+    },
+    "dependencies": {
+        "async": "^1.5.2",
+        "compass-hmc5883l": "^0.9.5",
+        "geomagnetism": "^0.0.2",
+        "octalbonescript": "^1.1.2"
+    }
+}
