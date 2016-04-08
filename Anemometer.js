@@ -58,3 +58,5 @@ function convertVoltageToWindSpeed(voltage) {
     var c = -8.1;
     return m * voltage + c;
 }
+
+module.exports = Anemometer;

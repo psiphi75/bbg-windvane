@@ -98,38 +98,24 @@ function collectData() {
     var startTime = new Date().getTime();
 
     async.parallel({
-        compass: function (callback) {
+        compassHeading: function (callback) {
             compass.getHeadingDegrees('x', 'y', callback);
         },
-        compassRaw: compass.getRawValues.bind(compass),
-        windSpeed: anemometer.getSpeed.bind(anemometer)
+        windSpeed: anemometer.getWindSpeed.bind(anemometer)
     }, function asyncResult(err, values) {
 
-        var status;
         if (err) {
             console.error('asyncResult():', err);
-            status = {
-                error: err
-            };
-        } else {
-            status = {
-                compass: util.round(values.compass, 1),
-                compassRaw: util.roundVector(values.compassRaw, 0),
-            };
+            return;
         }
+
+        var heading = util.round(values.compassHeading, 1);
+        var windSpeed = util.round(values.windSpeed, 2);
 
         var now = new Date().getTime();
         var elapsedTime = now - startTime;
         setTimeout(collectData, SENSOR_SAMPLE_RATE - elapsedTime);
 
-        if (!status.error) {
-            var outputStr = now + '';
-            outputStr += '\t' + util.vToStr(status.gyro);
-            outputStr += '\t' + util.vToStr(status.accel);
-            outputStr += '\t' + status.compass;
-            outputStr += '\t' + util.vToStr(status.compassRaw);
-            outputStr += '\t' + util.gpsToStr(status.gps);
-            console.log(outputStr);
-        }
+        console.log(now + '\t' + heading + '\t' + windSpeed);
     });
 }
