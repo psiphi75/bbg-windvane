@@ -32,22 +32,64 @@
 // Product page: https://www.adafruit.com/products/1733
 // Datasheet: https://cdn-shop.adafruit.com/product-files/1733/C2192+datasheet.pdf
 
-function Anemometer(obs, pin) {
+/**
+ * Anemometer function with initialisation parameters.
+ * @param {object} obs    The initialised octalbonescript object.
+ * @param {string} pin    The BeagleBone pin to use.
+ * @param {number} scaler (optional) The scale factor to use.
+ * @param {number} averageCount (optional) The number samples to take.
+ * @param {number} averageSampleRate (optional) The average time to take the samples across (ms).
+ */
+function Anemometer(obs, pin, scaler, averageCount, averageSampleRate) {
     if (typeof obs !== 'object' || typeof obs.pinMode !== 'function') {
         throw new Error('Anemometer: Error: Expecting octalbonescript to be defined');
     }
 
     this.obs = obs;
     this.pin = pin;
+    this.scaler = scaler || 1;
+    this.averageCount = averageCount || 1;
+    this.averageSampleRate = averageSampleRate || 10;
 }
 Anemometer.prototype.getWindSpeed = function getWindSpeed(callback) {
-    this.obs.analogRead(this.pin, function(err, voltage) {
+    var self = this;
+    var callCount = 0;
+    var averageVoltage = 0;
+    var startTime = 0;
+
+    getAverageVoltage();
+
+    function getAverageVoltage() {
+        var now = new Date().getTime();
+        var elapsedTime = now - startTime;
+
+        setTimeout(function() {
+            startTime = new Date().getTime();
+            self.obs.analogRead(self.pin, handleAnalogRead);
+        }, self.averageSampleRate - elapsedTime);
+    }
+
+    function handleAnalogRead(err, voltage) {
+
         if (err) {
             callback(err);
             return;
         }
-        callback(null, convertVoltageToWindSpeed(voltage));
-    });
+
+        callCount += 1;
+        averageVoltage += voltage;
+        if (callCount >= self.averageCount) {
+            // We are done
+            averageVoltage /= callCount;
+            averageVoltage *= self.scaler;
+            var windSpeed = convertVoltageToWindSpeed(averageVoltage);
+            callback(null, windSpeed);
+        } else {
+            // We need more samples
+            getAverageVoltage();
+        }
+    }
+
 };
 
 function convertVoltageToWindSpeed(voltage) {

@@ -33,6 +33,12 @@ var SENSOR_SAMPLE_RATE = 100;                       // How often we check the se
 
 var WINVANE_AIN = 'P9_33';
 
+// This number was determined by running the BeagleBone for a while and measuring
+// the WINVANE_AIN voltage.  The average value was taken over time.  Then scaled
+// by V_ave / 0.4,  where 0.4 is the windvane voltage at rest.
+var WINVANE_SCALER = 3.6653243848;
+
+
 // Required for the compass to determine true north (from the magnetic
 // declination).  The latitude / longitude values can be approximate.
 var DEFAULT_LATITUDE = 174.2;
@@ -80,7 +86,7 @@ var compass = new Compass(1, {
 });
 
 var Anemometer = require('./Anemometer');
-var anemometer = new Anemometer(obs, WINVANE_AIN);
+var anemometer = new Anemometer(obs, WINVANE_AIN, WINVANE_SCALER, 10, 10);
 
 /*******************************************************************************
  *                                                                             *
@@ -104,18 +110,18 @@ function collectData() {
         windSpeed: anemometer.getWindSpeed.bind(anemometer)
     }, function asyncResult(err, values) {
 
+        var now = new Date().getTime();
         if (err) {
             console.error('asyncResult():', err);
-            return;
+        } else {
+            var heading = util.round(values.compassHeading, 1);
+            var windSpeed = util.round(values.windSpeed, 2);
+
+            console.log(now + '\t' + heading + '\t' + windSpeed);
         }
 
-        var heading = util.round(values.compassHeading, 1);
-        var windSpeed = util.round(values.windSpeed, 2);
-
-        var now = new Date().getTime();
         var elapsedTime = now - startTime;
         setTimeout(collectData, SENSOR_SAMPLE_RATE - elapsedTime);
 
-        console.log(now + '\t' + heading + '\t' + windSpeed);
     });
 }
