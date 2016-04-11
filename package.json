@@ -1,5 +1,5 @@
 {
-    "name": "windvane",
+    "name": "beaglebone-windvane",
     "version": "0.8.0",
     "description": "A windvane for the BeagleBone Green/Black",
     "main": "index.js",
