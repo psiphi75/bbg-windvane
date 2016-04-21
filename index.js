@@ -29,7 +29,8 @@
  *                                                                             *
  *******************************************************************************/
 
-var SENSOR_SAMPLE_RATE = 100;                       // How often we check the sensor samples (milliseconds)
+// How often we check the sensor samples (milliseconds)
+var SENSOR_SAMPLE_RATE = 100;
 
 var WINVANE_AIN = 'P9_33';
 
@@ -43,9 +44,6 @@ var WINVANE_SCALER = 3.6653243848;
 // declination).  The latitude / longitude values can be approximate.
 var DEFAULT_LATITUDE = 174.2;
 var DEFAULT_LONGITUDE = -36.4;
-var geomagnetism = require('geomagnetism');
-var geo = geomagnetism.model().point([DEFAULT_LONGITUDE, DEFAULT_LATITUDE]);
-var declination = geo.decl;
 
 /*******************************************************************************
  *                                                                             *
@@ -75,6 +73,11 @@ obs.i2c.open('/dev/i2c-1', 0x1e, function() {
 var i2c = require('i2c-bus');
 var async = require('async');
 var util = require('./util');
+
+// geomagnetism - for lat-long values.
+var geomagnetism = require('geomagnetism');
+var geo = geomagnetism.model().point([DEFAULT_LONGITUDE, DEFAULT_LATITUDE]);
+var declination = geo.decl;
 
 // i2c-1 needs to be enabled at boot time.
 var Compass = require('compass-hmc5883l');
