@@ -47,8 +47,10 @@ var DEFAULT_LONGITUDE = -36.4;
 /*
  * Output config settings - we will pick these up later.
  */
+var uptime = require('uptimer');
 var header = {
     timestamp: new Date().getTime(),
+    timesinceBoot: uptime.getSystemUptime(),
     fields: ['time', 'trueNorth', 'windspeed']
 };
 
@@ -89,6 +91,7 @@ var compass = new Compass(2, {
 
 var Anemometer = require('./Anemometer');
 var anemometer = new Anemometer(obs, WINDVANE_AIN, WINDVANE_SCALER, 10, 10);
+
 
 /*******************************************************************************
  *                                                                             *
