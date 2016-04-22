@@ -52,23 +52,10 @@ var DEFAULT_LONGITUDE = -36.4;
  *******************************************************************************/
 
 /* Set this for octalbonescript such that it does load capes automatically */
-if (typeof process.env.AUTO_LOAD_CAPE === 'undefined') {
-    process.env.AUTO_LOAD_CAPE = 0;
-}
+process.env.AUTO_LOAD_CAPE = 0;
 var obs = require('octalbonescript');
 obs.loadCape('cape-universaln');
 obs.loadCape('BB-ADC');
-
-// This is required to initialise i2c-1 - currently used for the compass.
-obs.i2c.open('/dev/i2c-1', 0x1e, function() {
-    }, function(error) {
-        if (error) {
-            console.error(error.message);
-        } else {
-            console.log('Loaded i2c-1.');
-        }
-    }
-);
 
 var i2c = require('i2c-bus');
 var async = require('async');
@@ -81,7 +68,7 @@ var declination = geo.decl;
 
 // i2c-1 needs to be enabled at boot time.
 var Compass = require('compass-hmc5883l');
-var compass = new Compass(1, {
+var compass = new Compass(2, {
     i2c: i2c,
     sampleRate: '30',
     scale: '0.88',
