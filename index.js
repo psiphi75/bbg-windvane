@@ -32,18 +32,30 @@
 // How often we check the sensor samples (milliseconds)
 var SENSOR_SAMPLE_RATE = 100;
 
-var WINVANE_AIN = 'P9_33';
+var WINDVANE_AIN = 'P9_33';
 
 // This number was determined by running the BeagleBone for a while and measuring
 // the WINVANE_AIN voltage.  The average value was taken over time.  Then scaled
 // by V_ave / 0.4,  where 0.4 is the windvane voltage at rest.
-var WINVANE_SCALER = 3.6653243848;
-
+var WINDVANE_SCALER = 3.6653243848;
 
 // Required for the compass to determine true north (from the magnetic
 // declination).  The latitude / longitude values can be approximate.
 var DEFAULT_LATITUDE = 174.2;
 var DEFAULT_LONGITUDE = -36.4;
+
+/*
+ * Output config settings - we will pick these up later.
+ */
+var header = {
+    timestamp: new Date().getTime(),
+    fields: ['time', 'trueNorth', 'windspeed']
+};
+
+console.log('Starting BeagleBone-Windvane:');
+console.log('--- CONFIG START ---');
+console.log(JSON.stringify(header));
+console.log('--- CONFIG END ---');
 
 /*******************************************************************************
  *                                                                             *
@@ -76,7 +88,7 @@ var compass = new Compass(2, {
 });
 
 var Anemometer = require('./Anemometer');
-var anemometer = new Anemometer(obs, WINVANE_AIN, WINVANE_SCALER, 10, 10);
+var anemometer = new Anemometer(obs, WINDVANE_AIN, WINDVANE_SCALER, 10, 10);
 
 /*******************************************************************************
  *                                                                             *
