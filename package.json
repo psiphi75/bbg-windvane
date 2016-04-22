@@ -1,6 +1,6 @@
 {
   "name": "beaglebone-windvane",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "A windvane for the BeagleBone Green/Black",
   "main": "index.js",
   "scripts": {
