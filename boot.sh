@@ -31,13 +31,27 @@
 # Need to install forever (npm install -g forever)
 #
 
+LOG_DIR=/root/logs
+
+LOG=${LOG_DIR}/windvane.log
+ERROR=${LOG_DIR}/the-whole-shebang.error.log
+
+# Make the log directory if it does not exist
+mkdir -p ${LOG_DIR}
+
+# Backup the existing logs
+DATETIME=`date +%Y-%m-%d-%H:%M:%S`
+mv ${LOG} ${LOG}-${DATETIME}
+mv ${ERROR} ${ERROR}-${DATETIME}
+
+
 # go to the working directory of the script
 cd "$(dirname "$0")"
 
 /usr/local/bin/forever start  \
     --append                  \
     --watchDirectory ./       \
-    -l ../windvane.log        \
-    -e ../windvane.errors     \
+    -l ${LOG}                 \
+    -e ${ERROR}               \
     --uid "vane"              \
      index.js

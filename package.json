@@ -1,6 +1,6 @@
 {
   "name": "beaglebone-windvane",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "A windvane for the BeagleBone Green/Black",
   "main": "index.js",
   "scripts": {
@@ -28,6 +28,6 @@
     "geomagnetism": "^0.0.2",
     "i2c-bus": "^1.0.2",
     "octalbonescript": "^1.1.2",
-    "uptimer": "^0.1.2"
+    "super-duper-serial-gps-system": "0.5.2"
   }
 }

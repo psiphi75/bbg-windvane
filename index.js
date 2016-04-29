@@ -33,6 +33,7 @@
 var SENSOR_SAMPLE_RATE = 100;
 
 var WINDVANE_AIN = 'P9_33';
+var SERIAL_GPS = '/dev/ttyO1';
 
 // This number was determined by running the BeagleBone for a while and measuring
 // the WINVANE_AIN voltage.  The average value was taken over time.  Then scaled
@@ -47,14 +48,14 @@ var DEFAULT_LONGITUDE = -36.4;
 /*
  * Output config settings - we will pick these up later.
  */
-var uptime = require('uptimer');
+var os = require('os');
 var header = {
     timestamp: new Date().getTime(),
-    timesinceBoot: uptime.getSystemUptime(),
+    timesinceBoot: os.uptime(),
     fields: ['time', 'trueNorth', 'windspeed']
 };
 
-console.log('Starting BeagleBone-Windvane:');
+console.log('\nStarting BeagleBone-Windvane:');
 console.log('--- CONFIG START ---');
 console.log(JSON.stringify(header));
 console.log('--- CONFIG END ---');
@@ -93,6 +94,30 @@ var Anemometer = require('./Anemometer');
 var anemometer = new Anemometer(obs, WINDVANE_AIN, WINDVANE_SCALER, 10, 10);
 
 
+// include the module
+var serialgps = require('super-duper-serial-gps-system');
+
+
+function enableSerial(port) {
+    obs.serial.enable(port, function(err) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        console.log('enabled serial: ' + port);
+    });
+}
+// Enable serial for the GPS device
+enableSerial(SERIAL_GPS);
+
+var gps = new serialgps(SERIAL_GPS, 9600);
+
+// monitor for 'position' event.  The data object is described below.
+var lastGPS;
+gps.on('position', function(data) {
+    lastGPS = data;
+});
+
 /*******************************************************************************
  *                                                                             *
  *                           Sensor collection code                            *
@@ -122,7 +147,14 @@ function collectData() {
             var heading = util.round(values.compassHeading, 1);
             var windSpeed = util.round(values.windSpeed, 2);
 
-            console.log(now + '\t' + heading + '\t' + windSpeed);
+            var gpsStr = 'undefined';
+            if (lastGPS) {
+                gpsStr = lastGPS.latitude.toString() + '\t';
+                gpsStr += lastGPS.longitude.toString() + '\t';
+                gpsStr += lastGPS.timestamp;
+            }
+
+            console.log(now + '\t' + heading + '\t' + windSpeed + '\t' + gpsStr);
         }
 
         var elapsedTime = now - startTime;
