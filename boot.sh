@@ -34,7 +34,7 @@
 LOG_DIR=/root/logs
 
 LOG=${LOG_DIR}/windvane.log
-ERROR=${LOG_DIR}/the-whole-shebang.error.log
+ERROR=${LOG_DIR}/windvane.error.log
 
 # Make the log directory if it does not exist
 mkdir -p ${LOG_DIR}

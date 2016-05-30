@@ -33,7 +33,8 @@
 var SENSOR_SAMPLE_RATE = 100;
 
 var WINDVANE_AIN = 'P9_33';
-var SERIAL_GPS = '/dev/ttyO1';
+var SERIAL_GPS = '/dev/ttyO4';
+var SERIAL_BAUD = 9600;
 
 // This number was determined by running the BeagleBone for a while and measuring
 // the WINVANE_AIN voltage.  The average value was taken over time.  Then scaled
@@ -48,6 +49,7 @@ var DEFAULT_LONGITUDE = -36.4;
 /*
  * Output config settings - we will pick these up later.
  */
+var logger = require('./logger');
 var os = require('os');
 var header = {
     timestamp: new Date().getTime(),
@@ -55,10 +57,10 @@ var header = {
     fields: ['time', 'trueNorth', 'windspeed']
 };
 
-console.log('\nStarting BeagleBone-Windvane:');
-console.log('--- CONFIG START ---');
-console.log(JSON.stringify(header));
-console.log('--- CONFIG END ---');
+logger.info('\nStarting BeagleBone-Windvane:');
+logger.info('--- CONFIG START ---');
+logger.info('HEADER:' + JSON.stringify(header));
+logger.info('--- CONFIG END ---');
 
 /*******************************************************************************
  *                                                                             *
@@ -74,7 +76,6 @@ obs.loadCape('BB-ADC');
 
 var i2c = require('i2c-bus');
 var async = require('async');
-var util = require('./util');
 
 // geomagnetism - for lat-long values.
 var geomagnetism = require('geomagnetism');
@@ -93,29 +94,14 @@ var compass = new Compass(2, {
 var Anemometer = require('./Anemometer');
 var anemometer = new Anemometer(obs, WINDVANE_AIN, WINDVANE_SCALER, 10, 10);
 
-
-// include the module
-var serialgps = require('super-duper-serial-gps-system');
-
-
-function enableSerial(port) {
-    obs.serial.enable(port, function(err) {
-        if (err) {
-            console.error(err);
-            return;
-        }
-        console.log('enabled serial: ' + port);
-    });
-}
-// Enable serial for the GPS device
-enableSerial(SERIAL_GPS);
-
-var gps = new serialgps(SERIAL_GPS, 9600);
-
-// monitor for 'position' event.  The data object is described below.
-var lastGPS;
-gps.on('position', function(data) {
-    lastGPS = data;
+var gps_time;
+obs.serial.enable(SERIAL_GPS, function(err) {
+    if (err) {
+        logger.error(err);
+        return;
+    }
+    logger.debug('enabled serial: ' + SERIAL_GPS);
+    init();
 });
 
 /*******************************************************************************
@@ -124,11 +110,16 @@ gps.on('position', function(data) {
  *                                                                             *
  *******************************************************************************/
 
+function init() {
+    var GPS_Time = require('./gps-time.js');
+    gps_time = new GPS_Time(SERIAL_GPS, SERIAL_BAUD);
+    collectData();
+}
+
 /**
  * This will asyncronously retreive the sensor data (gyro, accel and compass).
  * GPS data is not included since it is retreived only every second.
  */
-collectData();
 function collectData() {
 
     var startTime = new Date().getTime();
@@ -142,19 +133,13 @@ function collectData() {
 
         var now = new Date().getTime();
         if (err) {
-            console.error('asyncResult():', err);
+            logger.error('asyncResult():', err);
         } else {
-            var heading = util.round(values.compassHeading, 1);
-            var windSpeed = util.round(values.windSpeed, 2);
 
-            var gpsStr = 'undefined';
-            if (lastGPS) {
-                gpsStr = lastGPS.latitude.toString() + '\t';
-                gpsStr += lastGPS.longitude.toString() + '\t';
-                gpsStr += lastGPS.timestamp;
-            }
+            values.timestamp = now;
+            values.gps_time = gps_time.getTime();
 
-            console.log(now + '\t' + heading + '\t' + windSpeed + '\t' + gpsStr);
+            logger.info('STATUS:' + JSON.stringify(values));
         }
 
         var elapsedTime = now - startTime;
