@@ -33,8 +33,8 @@
 var SENSOR_SAMPLE_RATE = 100;
 
 var WINDVANE_AIN = 'P9_33';
-var SERIAL_GPS = '/dev/ttyO4';
-var SERIAL_BAUD = 9600;
+// var SERIAL_GPS = '/dev/ttyO4';
+// var SERIAL_BAUD = 9600;
 
 // This number was determined by running the BeagleBone for a while and measuring
 // the WINVANE_AIN voltage.  The average value was taken over time.  Then scaled
@@ -94,15 +94,15 @@ var compass = new Compass(2, {
 var Anemometer = require('./Anemometer');
 var anemometer = new Anemometer(obs, WINDVANE_AIN, WINDVANE_SCALER, 10, 10);
 
-var gps_time;
-obs.serial.enable(SERIAL_GPS, function(err) {
-    if (err) {
-        logger.error(err);
-        return;
-    }
-    logger.debug('enabled serial: ' + SERIAL_GPS);
-    init();
-});
+// var gps_time;
+// obs.serial.enable(SERIAL_GPS, function(err) {
+//     if (err) {
+//         logger.error(err);
+//         return;
+//     }
+//     logger.debug('enabled serial: ' + SERIAL_GPS);
+//     init();
+// });
 
 /*******************************************************************************
  *                                                                             *
@@ -110,11 +110,12 @@ obs.serial.enable(SERIAL_GPS, function(err) {
  *                                                                             *
  *******************************************************************************/
 
-function init() {
-    var GPS_Time = require('./gps-time.js');
-    gps_time = new GPS_Time(SERIAL_GPS, SERIAL_BAUD);
-    collectData();
-}
+// function init() {
+//     // var GPS_Time = require('./gps-time.js');
+//     // gps_time = new GPS_Time(SERIAL_GPS, SERIAL_BAUD);
+//     collectData();
+// }
+collectData();
 
 /**
  * This will asyncronously retreive the sensor data (gyro, accel and compass).
@@ -137,7 +138,7 @@ function collectData() {
         } else {
 
             values.timestamp = now;
-            values.gps_time = gps_time.getTime();
+            // values.gps_time = gps_time.getTime();
 
             logger.info('STATUS:' + JSON.stringify(values));
         }
