@@ -48,7 +48,7 @@ mv ${ERROR} ${ERROR}-${DATETIME}
 # go to the working directory of the script
 cd "$(dirname "$0")"
 
-/usr/local/bin/forever start  \
+/usr/bin/forever start  \
     --append                  \
     --watchDirectory ./       \
     -l ${LOG}                 \
