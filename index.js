@@ -86,7 +86,19 @@ var compass = new Compass(2, {
     i2c: i2c,
     sampleRate: '30',
     scale: '0.88',
-    declination: declination
+    declination: declination + 180, // +180 because wind heading is in other direction
+    calibration: {
+        offset: {
+            x: 22.265,
+            y: -97.455,
+            z: -37.595
+        },
+        scale: {
+            x: 1.62950,
+            y: 1.31346,
+            z: 1.60008
+        }
+    }
 });
 
 var Anemometer = require('./Anemometer');
@@ -120,7 +132,6 @@ function collectData() {
             logger.error('asyncResult():', err);
         } else {
             values.timestamp = now;
-            values.compassHeading += 180;       //  Heading of wind is actually the other direction.
             logger.info('STATUS:' + JSON.stringify(values));
         }
 

@@ -1,6 +1,6 @@
 {
   "name": "beaglebone-windvane",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "A windvane for the BeagleBone Green/Black",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "async": "^1.5.2",
-    "compass-hmc5883l": "^0.9.5",
+    "compass-hmc5883l": "^1.0.2",
     "geomagnetism": "^0.0.2",
     "i2c-bus": "^1.0.2",
     "octalbonescript": "^1.1.2",
