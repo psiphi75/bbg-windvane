@@ -86,7 +86,7 @@ var compass = new Compass(2, {
     i2c: i2c,
     sampleRate: '30',
     scale: '0.88',
-    declination: declination + 180, // +180 because wind heading is in other direction
+    declination: declination,
     calibration: {
         offset: {
             x: 22.265,
@@ -110,8 +110,6 @@ var anemometer = new Anemometer(obs, WINDVANE_AIN, WINDVANE_SCALER, 10, 10);
  *                                                                             *
  *******************************************************************************/
 
-collectData();
-
 /**
  * This will asyncronously retreive the sensor data (gyro, accel and compass).
  * GPS data is not included since it is retreived only every second.
@@ -133,6 +131,7 @@ function collectData() {
         } else {
             values.timestamp = now;
             logger.info('STATUS:' + JSON.stringify(values));
+            comms.status(values);
         }
 
         var elapsedTime = now - startTime;
@@ -140,3 +139,12 @@ function collectData() {
 
     });
 }
+
+/*******************************************************************************
+ *                                                                             *
+ *                           Sensor collection code                            *
+ *                                                                             *
+ *******************************************************************************/
+
+var Communication = require('./Communication');
+var comms = new Communication(collectData, logger);
