@@ -23,15 +23,15 @@
     "url": "https://github.com/psiphi75/beaglebone-windvane/issues"
   },
   "dependencies": {
-    "async": "^2.0.0-rc.6",
+    "async": "^2.0.1",
     "compass-hmc5883l": "^1.0.2",
     "geomagnetism": "^0.0.2",
-    "i2c-bus": "^1.1.0",
+    "i2c-bus": "^1.1.1",
     "octalbonescript": "^1.2.0",
     "winston": "^2.2.0",
     "serialport": "^4.0.1",
     "pmtk": "^0.1.2",
     "polo": "^0.8.1",
-    "web-remote-control": "^1.7.8"
+    "web-remote-control": "^1.9.3"
   }
 }

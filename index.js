@@ -119,10 +119,10 @@ function collectData() {
     var startTime = new Date().getTime();
 
     async.parallel({
-        compassHeading: function (callback) {
+        heading: function (callback) {
             compass.getHeadingDegrees('x', 'z', callback);
         },
-        windSpeed: anemometer.getWindSpeed.bind(anemometer)
+        speed: anemometer.getWindSpeed.bind(anemometer)
     }, function asyncResult(err, values) {
 
         var now = new Date().getTime();
@@ -130,6 +130,7 @@ function collectData() {
             logger.error('asyncResult():', err);
         } else {
             values.timestamp = now;
+            values.heading = wrapDegrees(values.heading + 180);
             logger.info('STATUS:' + JSON.stringify(values));
             comms.status(values);
         }
@@ -138,6 +139,16 @@ function collectData() {
         setTimeout(collectData, SENSOR_SAMPLE_RATE - elapsedTime);
 
     });
+}
+
+function wrapDegrees(deg) {
+    while (deg > 180) {
+        deg -= 360;
+    }
+    while (deg < -180) {
+        deg += 360;
+    }
+    return deg;
 }
 
 /*******************************************************************************

@@ -75,7 +75,12 @@ Communication.prototype.createProxyConnection = function(proxyDetails) {
     // Ping the proxy and get the response time (in milliseconds)
     this.toy.ping(handlePing);
 
-    this.toy.on('error', logger.error);
+    this.toy.on('error', function (err) {
+        logger.error(err);
+        logger.error('exiting process');
+        var exit = process.exit;
+        exit();
+    });
 
 };
 
