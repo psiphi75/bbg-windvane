@@ -88,21 +88,18 @@ var compass = new Compass(2, {
     scale: '0.88',
     declination: declination,
     calibration: {
-        offset: {
-            x: 22.265,
-            y: -97.455,
-            z: -37.595
-        },
-        scale: {
-            x: 1.62950,
-            y: 1.31346,
-            z: 1.60008
-        }
+offset: { x: 34.31, y: -48.90999999999997, z: -59.495000000000005 },
+  scale: 
+   { x: 1.4515060240963853,
+     y: 1.4620752427184467,
+     z: 1.5946393117140967 }
     }
 });
 
 var Anemometer = require('./Anemometer');
 var anemometer = new Anemometer(obs, WINDVANE_AIN, WINDVANE_SCALER, 10, 10);
+
+var headingFineTuner = require('./OffsetMap');
 
 /*******************************************************************************
  *                                                                             *
@@ -130,7 +127,7 @@ function collectData() {
             logger.error('asyncResult():', err);
         } else {
             values.timestamp = now;
-            values.heading = wrapDegrees(values.heading + 180);
+            values.heading = headingFineTuner(wrapDegrees(values.heading + 180));
             logger.info('STATUS:' + JSON.stringify(values));
             comms.status(values);
         }
