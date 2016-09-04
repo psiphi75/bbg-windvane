@@ -30,7 +30,7 @@
  *******************************************************************************/
 
 // How often we check the sensor samples (milliseconds)
-var SENSOR_SAMPLE_RATE = 100;
+var SENSOR_SAMPLE_RATE = 860;
 
 var WINDVANE_AIN = 'P9_33';
 
@@ -41,8 +41,8 @@ var WINDVANE_SCALER = 3.6653243848;
 
 // Required for the compass to determine true north (from the magnetic
 // declination).  The latitude / longitude values can be approximate.
-var DEFAULT_LATITUDE = 174.2;
-var DEFAULT_LONGITUDE = -36.4;
+var DEFAULT_LATITUDE = -8.84;   // FIXME: Lat long are around the wrong way
+var DEFAULT_LONGITUDE = 41.68;
 
 /*
  * Output config settings - we will pick these up later.
@@ -89,7 +89,7 @@ var compass = new Compass(2, {
     declination: declination,
     calibration: {
 offset: { x: 34.31, y: -48.90999999999997, z: -59.495000000000005 },
-  scale: 
+  scale:
    { x: 1.4515060240963853,
      y: 1.4620752427184467,
      z: 1.5946393117140967 }
@@ -113,8 +113,6 @@ var headingFineTuner = require('./OffsetMap');
  */
 function collectData() {
 
-    var startTime = new Date().getTime();
-
     async.parallel({
         heading: function (callback) {
             compass.getHeadingDegrees('x', 'z', callback);
@@ -122,18 +120,18 @@ function collectData() {
         speed: anemometer.getWindSpeed.bind(anemometer)
     }, function asyncResult(err, values) {
 
-        var now = new Date().getTime();
         if (err) {
             logger.error('asyncResult():', err);
         } else {
-            values.timestamp = now;
-            values.heading = headingFineTuner(wrapDegrees(values.heading + 180));
+            values.timestamp = new Date().getTime();
+            var tunedHeading = headingFineTuner(wrapDegrees(values.heading + 180));
+            logger.debug(values.heading.toFixed(2) + '-->' + tunedHeading.toFixed(2));
+            values.heading = tunedHeading;
             logger.info('STATUS:' + JSON.stringify(values));
             comms.status(values);
         }
 
-        var elapsedTime = now - startTime;
-        setTimeout(collectData, SENSOR_SAMPLE_RATE - elapsedTime);
+        setTimeout(collectData, SENSOR_SAMPLE_RATE);
 
     });
 }

@@ -31,23 +31,32 @@ function Communication(callback, _logger) {
     logger = _logger;
 
     var DISCOVERY_PROXY_NAME = 'web-remote-control-proxy';
-    var polo = require('polo')();
-    polo.put({
-        name: CHANNEL_NAME,
-        port: 31234
-    });
-
     var self = this;
-    polo.on('up', function (name) {
-        if (name === DISCOVERY_PROXY_NAME) {
-            var proxyDetails = polo.get(DISCOVERY_PROXY_NAME);
-            callback();
-            self.createProxyConnection(proxyDetails);
-        }
-    });
-    polo.on('error', function(err) {
-        console.error('Polo: ', err);
-    });
+
+    initPolo();
+
+
+    function initPolo() {
+
+        var Polo = require('polo');
+        var polo = Polo();
+        polo.put({
+            name: CHANNEL_NAME,
+            port: 31234
+        });
+
+        polo.on('up', function (name) {
+            if (name === DISCOVERY_PROXY_NAME) {
+                var proxyDetails = polo.get(DISCOVERY_PROXY_NAME);
+                callback();
+                self.createProxyConnection(proxyDetails);
+            }
+        });
+        polo.on('error', function(err) {
+            console.error('Polo: ', err);
+            setTimeout(process.exit, 1000);     // eslint-disable-line no-process-exit
+        });
+    }
 
 }
 
@@ -79,9 +88,9 @@ Communication.prototype.createProxyConnection = function(proxyDetails) {
 
     this.toy.on('error', function (err) {
         logger.error(err);
-        // logger.error('exiting process');
-        // var exit = process.exit;
-        // exit();
+        logger.error('exiting process');
+        var exit = process.exit;
+        exit();
     });
 
 };
